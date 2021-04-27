@@ -6,6 +6,6 @@ This project aims at finding a way to mitigate particular trading strategy consi
 1. [Download and install Anaconda](https://www.anaconda.com/products/individual)
 2. Enter CMD mod with administration account
 3. Use the following codes:
-```
-conda create --name myenv
-```
+  ```
+  conda create --name myenv
+  ```
