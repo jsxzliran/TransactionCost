@@ -13,3 +13,11 @@ This project aims at finding a way to mitigate particular trading strategy consi
   ```
   conda activate myenv
   ```
+5. Download the files and move to the folder in CMD, use the following codes to install packages for your environment:
+  ```
+  conda install --file requirements.txt
+  ```
+6. Don't forget to install the pytorch:
+```
+conda install pytorch torchvision torchaudio cudatoolkit=11.1 -c pytorch -c conda-forge
+```
