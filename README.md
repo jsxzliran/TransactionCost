@@ -21,7 +21,8 @@ This project aims at finding a way to mitigate particular trading strategy consi
 ```
 conda install pytorch torchvision torchaudio cudatoolkit=11.1 -c pytorch -c conda-forge
 ```
-Here you need to figure out your particular graph card and related drivers file to install
+Here you need to figure out your particular graph card and related drivers file to install< />
+
 7. And example IDE is jupyterlab:
 ```
 conda install -c conda-forge jupyterlab
