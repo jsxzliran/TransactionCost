@@ -28,5 +28,4 @@ Here you need to figure out your particular graph card and related drivers file 
 conda install -c conda-forge jupyterlab
 ```
 8. Open OneStockTradingCost.ipynb with your IDE(with the pre-set environment) and run it!
-```
-8. The multi-assets models(>1) might require large memory of graph cards and I use google colab(the first few lines of notebook is for colab)
+9. The multi-assets models(>1) might require large memory of graph cards and I use google colab(the first few lines of notebook is for colab)
