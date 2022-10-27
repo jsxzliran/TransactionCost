@@ -5,6 +5,7 @@ import math
 import bottleneck as bn
 
 # a class describing the features of a simulated path matrix
+# Only used for one asset
 class OneStock:
     def __init__(self, seed, mu, sigma, s0, npaths, nsteps, T):
         self.seed = seed

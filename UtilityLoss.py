@@ -9,6 +9,8 @@ from torch import optim
 import math, random
 
 # Define 2 utility function, log utility and power utility
+# Not working well
+
 class LogUtilityLoss(torch.nn.Module):
     
     def __init__(self):

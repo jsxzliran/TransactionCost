@@ -5,6 +5,7 @@ import math
 import bottleneck as bn
 
 # a class describing the features of a simulated path matrix
+# for 2 or more assets
 class ManyStocks:
     def __init__(self,  seed, num, mu, s0, cov, npaths, nsteps, T):
         self.seed = seed
