@@ -5,7 +5,9 @@ This project aims at finding a way to mitigate particular trading strategy consi
 
 1. [Download and install Anaconda](https://www.anaconda.com/products/individual)
 2. Enter CMD mod with administration account
-3. Use the following codes, replace myenv with the name you prefer:
+3. Use the following codes, replace myenv with the name you prefer
+3. Notice this will require high memory and performance of graphic card, with at least 32GB system memory and 16GB GPU memory
+4. Alternatively, one can choose to use Google Colab service
   ```
   conda create --name myenv
   ```
