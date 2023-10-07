@@ -5,7 +5,6 @@ import math
 import bottleneck as bn
 
 # a class describing the features of a simulated path matrix
-# Only used for one asset
 class OneStock:
     def __init__(self, seed, mu, sigma, s0, npaths, nsteps, T):
         self.seed = seed
@@ -38,3 +37,10 @@ class OneStock:
         prices = np.row_stack((self.s0*np.ones((1,self.npaths)),prices))
         returns = np.transpose(np.exp(np.diff(np.log(prices), axis=0))-1)
         return returns
+    
+    def BM(self):
+        np.random.seed(self.seed)
+        dt = self.T/self.nsteps
+        W2 = (math.sqrt(dt))*np.random.normal(size=(self.nsteps,self.npaths))
+        W = np.cumsum(W2,axis=0)
+        return W
