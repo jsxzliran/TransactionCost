@@ -74,3 +74,10 @@ class ManyStocks:
         W2 = np.transpose(np.dot(np.transpose(W2),np.transpose(CHOL)))
         dW = (math.sqrt(dt))*W2
         return dW
+    
+    def BM_Ind(self):
+        np.random.seed(self.seed)
+        dt = self.T/self.nsteps
+        W2 = np.random.normal(size=(self.num,self.nsteps,self.npaths ))
+        dW = (math.sqrt(dt))*W2
+        return dW
