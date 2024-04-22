@@ -1,5 +1,8 @@
 numpy
 pandas
-bottleneck
 matplotlib
 math
+scipy
+datetime
+yfinance
+torch
