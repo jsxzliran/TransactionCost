@@ -5,4 +5,3 @@ math
 scipy
 datetime
 yfinance
-torch
