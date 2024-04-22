@@ -97,7 +97,7 @@ def make_model(input_size, hidden_size, n_layers, npaths, seq_length, delta, gam
 
 
 # Train and plot model
-def train_model(strategy, target, returns, cost, scaler, model, criterion, optimizer,n_epochs):
+def train_model(strategy, target, returns, cost, scaler, model, criterion, optimizer,n_epochs,gamma,T):
     losses = np.zeros(n_epochs) 
     for epoch in range(n_epochs):
         #inputs = strategy.view(seq_length,1,1).to(device)
@@ -109,7 +109,7 @@ def train_model(strategy, target, returns, cost, scaler, model, criterion, optim
         loss.backward()
         optimizer.step()
         losses[epoch] += loss    
-    POA.plot_loss(n_epochs, losses)
+    POA.loss_esr(n_epochs, losses,gamma,T)
     for name, param in model.named_parameters():
         print (name, param.data)
     return model, losses

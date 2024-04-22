@@ -2,7 +2,6 @@ import numpy as np
 from datetime import datetime
 import pandas as pd
 import math
-#import bottleneck as bn
 
 # a class describing the features of a simulated path matrix
 class ManyStocks:
