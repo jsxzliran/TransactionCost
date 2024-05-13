@@ -2,6 +2,7 @@ import numpy as np
 import Utility_Loss as UL
 import torch
 import datetime
+import random
 import NN_More_Assets as NMA
 import Func_More_Assets as FMA
 import matplotlib.pyplot as plt
@@ -121,5 +122,22 @@ def plot_ntr_two2(model, Merton_opt, x_range=None, y_range=None):
     plt.title(label='No trade Region')
     #plt.title(label='Example: No trade Region')
     
+    plt.savefig("ntr_2.png", format='png', dpi=500)
+    plt.show()
+
+# a plot of two dimension using monte carlo plots
+def plot_ntr_two3(model, Merton_opt, returns, cost, num_stocks,seq_length,npaths):
+    #create a very random strategy
+    ex_strategy = 3*torch.rand([num_stocks,seq_length,npaths]).to(device).view([num_stocks,seq_length,npaths])
+    # model output an adjusted strategy
+    o = model(ex_strategy, Merton_opt, returns, cost)[0]
+    temp = random.randint(1,seq_length-1)
+    x = o.cpu().detach().numpy()[0,temp,:].reshape([1,npaths])
+    y = o.cpu().detach().numpy()[1,temp,:].reshape([1,npaths])
+    plt.figure(figsize=(6,5))
+    plt.grid()
+    plt.title(label='No trade Region')
+    plt.plot(x, y, 'o', color='blue')
+
     plt.savefig("ntr_2.png", format='png', dpi=500)
     plt.show()

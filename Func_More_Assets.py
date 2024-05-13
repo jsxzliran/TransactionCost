@@ -179,6 +179,18 @@ def make_model(input_size, hidden_size, n_layers, num_stocks, npaths, seq_length
     optimizer = optim.Adam(filter(lambda p: p.requires_grad, model.parameters()), lr=learning_rate)
     return model, criterion, optimizer
 
+
+def make_model2(input_size, hidden_size, n_layers, num_stocks, npaths, seq_length, delta_tensor, utility_gamma, learning_rate):
+    batch_size = npaths
+    dim_size = num_stocks
+    model = NMA.WealthRNN2(input_size, hidden_size, n_layers, batch_size, seq_length,dim_size).to(device)
+    criterion = UL.PowerUtilityLoss(utility_gamma)
+    model.update_weight(torch.diag(1.0/delta_tensor).to(device))
+    model = model.to(torch.float32)
+    model.to(device)
+    optimizer = optim.Adam(filter(lambda p: p.requires_grad, model.parameters()), lr=learning_rate)
+    return model, criterion, optimizer
+
 def train_model(strategy, target, returns, cost, scaler, model, criterion, optimizer,n_epochs,is_batch,n_partition,npaths,utility_gamma,T):
     losses = np.zeros(n_epochs+1)
     loss = 0
@@ -205,7 +217,7 @@ def train_model(strategy, target, returns, cost, scaler, model, criterion, optim
             optimizer.step()
             #scheduler.step()
             losses[epoch] += loss
-    PMA.plot_loss_esr(n_epochs, losses,utility_gamma,T,True)
+    PMA.plot_loss_esr(n_epochs, losses,utility_gamma,T)
     return model, losses
 
 def ESR(input_size, hidden_size, n_layers,num_stocks, seq_length, npaths,\
