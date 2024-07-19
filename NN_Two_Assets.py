@@ -171,7 +171,7 @@ class NoTradeRegionRNN2(nn.Module):
         bd = (self.rotate_param.weight[0,0]-self.rotate_param.weight[0,1])\
             /(self.rotate_param.weight[1,0]-self.rotate_param.weight[1,1])
         
-
+        # Create the lower and upper bounds of each assets
         def lower_bound_x(x):
             ingate = (x.squeeze(1)[1]-Corner[0,1]*(bd>=0)-Corner[1,1]*(bd<0))*bd
 

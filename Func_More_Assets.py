@@ -179,13 +179,37 @@ def make_model(input_size, hidden_size, n_layers, num_stocks, npaths, seq_length
     optimizer = optim.Adam(filter(lambda p: p.requires_grad, model.parameters()), lr=learning_rate)
     return model, criterion, optimizer
 
-
+# Set up the training model with input data and wealth2
 def make_model2(input_size, hidden_size, n_layers, num_stocks, npaths, seq_length, delta_tensor, utility_gamma, learning_rate):
     batch_size = npaths
     dim_size = num_stocks
     model = NMA.WealthRNN2(input_size, hidden_size, n_layers, batch_size, seq_length,dim_size).to(device)
     criterion = UL.PowerUtilityLoss(utility_gamma)
     model.update_weight(torch.diag(1.0/delta_tensor).to(device))
+    model = model.to(torch.float32)
+    model.to(device)
+    optimizer = optim.Adam(filter(lambda p: p.requires_grad, model.parameters()), lr=learning_rate)
+    return model, criterion, optimizer
+
+
+# Set up the training model with input data and wealth3
+def make_model3(input_size, hidden_size, n_layers, num_stocks, npaths, seq_length, delta_tensor, utility_gamma, learning_rate):
+    batch_size = npaths
+    dim_size = num_stocks
+    model = NMA.WealthRNN3(input_size, hidden_size, n_layers, batch_size, seq_length,dim_size).to(device)
+    criterion = UL.PowerUtilityLoss(utility_gamma)
+    model.update_bias(delta_tensor)
+    model = model.to(torch.float32)
+    model.to(device)
+    optimizer = optim.Adam(filter(lambda p: p.requires_grad, model.parameters()), lr=learning_rate)
+    return model, criterion, optimizer
+
+def make_model_ellipse(input_size, hidden_size, n_layers, num_stocks, npaths, seq_length, delta_tensor, utility_gamma, learning_rate):
+    batch_size = npaths
+    dim_size = num_stocks
+    model = NMA.WealthRNN_Ellipse(input_size, hidden_size, n_layers, batch_size, seq_length,dim_size).to(device)
+    criterion = UL.PowerUtilityLoss(utility_gamma)
+    #model.initialize_diag(1.0/torch.pow(delta_tensor,2))
     model = model.to(torch.float32)
     model.to(device)
     optimizer = optim.Adam(filter(lambda p: p.requires_grad, model.parameters()), lr=learning_rate)
@@ -239,9 +263,68 @@ def ESR(input_size, hidden_size, n_layers,num_stocks, seq_length, npaths,\
     # condidence interval
     CI = 1/T*np.log(np.power(confidence_interval(np.power(outputs.detach().cpu().numpy(),1-utility_gamma),confidence),1/(1-utility_gamma)))
 
-    return cal_esr(strategy,returns,cost,utility_gamma, T),cal_esr(stra_NTR_the,returns,cost,utility_gamma, T),cal_esr(_,returns,cost,utility_gamma, T),CI
+    return cal_esr(strategy,returns,cost,utility_gamma, T,scaler),cal_esr(stra_NTR_the,returns,cost,utility_gamma, T,scaler),cal_esr(_,returns,cost,utility_gamma, T,scaler),CI
 
-
+def ESR2(input_size, hidden_size, n_layers,num_stocks, seq_length, npaths,\
+        model_state_dict,  strategy, returns, cost, utility_gamma, T, scaler = 1, confidence = 0.95):
     
+    batch_size = npaths
+    seq_length = seq_length
+    dim_size = num_stocks
+    # create a simple no trade region
+    lower = strategy[:,0,:].view(num_stocks,1,npaths)-torch.pow(1.5/utility_gamma*(strategy*strategy*(1-strategy)*(1-strategy))[:,0,:].view(num_stocks,1,npaths)*cost[:,0,:].view(num_stocks,1,npaths),1/3)
+    upper = strategy[:,0,:].view(num_stocks,1,npaths)+torch.pow(1.5/utility_gamma*(strategy*strategy*(1-strategy)*(1-strategy))[:,0,:].view(num_stocks,1,npaths)*cost[:,0,:].view(num_stocks,1,npaths),1/3)
+    stra_NTR_the = simpleNTR(strategy, returns, upper, lower)
+    # create a new model
+    model3 = NMA.WealthRNN2(input_size, hidden_size, n_layers, batch_size, seq_length,dim_size).to(device)
+    # load saved data
+    model3.load_state_dict(model_state_dict)
+    # outputs of testing data
+    _, outputs = model3(strategy.to(device),strategy[:,0,0], returns, cost, None)
+    # condidence interval
+    CI = 1/T*np.log(np.power(confidence_interval(np.power(outputs.detach().cpu().numpy(),1-utility_gamma),confidence),1/(1-utility_gamma)))
 
+    return cal_esr(strategy,returns,cost,utility_gamma, T,scaler),cal_esr(stra_NTR_the,returns,cost,utility_gamma, T,scaler),cal_esr(_,returns,cost,utility_gamma, T,scaler),CI
+
+def ESR3(input_size, hidden_size, n_layers,num_stocks, seq_length, npaths,\
+        model_state_dict,  strategy, returns, cost, utility_gamma, T, scaler = 1, confidence = 0.95):
+    
+    batch_size = npaths
+    seq_length = seq_length
+    dim_size = num_stocks
+    # create a simple no trade region
+    lower = strategy[:,0,:].view(num_stocks,1,npaths)-torch.pow(1.5/utility_gamma*(strategy*strategy*(1-strategy)*(1-strategy))[:,0,:].view(num_stocks,1,npaths)*cost[:,0,:].view(num_stocks,1,npaths),1/3)
+    upper = strategy[:,0,:].view(num_stocks,1,npaths)+torch.pow(1.5/utility_gamma*(strategy*strategy*(1-strategy)*(1-strategy))[:,0,:].view(num_stocks,1,npaths)*cost[:,0,:].view(num_stocks,1,npaths),1/3)
+    stra_NTR_the = simpleNTR(strategy, returns, upper, lower)
+    # create a new model
+    model3 = NMA.WealthRNN3(input_size, hidden_size, n_layers, batch_size, seq_length,dim_size).to(device)
+    # load saved data
+    model3.load_state_dict(model_state_dict)
+    # outputs of testing data
+    _, outputs = model3(strategy.to(device),strategy[:,0,0], returns, cost, None)
+    # condidence interval
+    CI = 1/T*np.log(np.power(confidence_interval(np.power(outputs.detach().cpu().numpy(),1-utility_gamma),confidence),1/(1-utility_gamma)))
+
+    return cal_esr(strategy,returns,cost,utility_gamma, T,scaler),cal_esr(stra_NTR_the,returns,cost,utility_gamma, T,scaler),cal_esr(_,returns,cost,utility_gamma, T,scaler),CI
+    
+def ESR_Ellipse(input_size, hidden_size, n_layers,num_stocks, seq_length, npaths,\
+        model_state_dict,  strategy, returns, cost, utility_gamma, T, scaler = 1, confidence = 0.95):
+    
+    batch_size = npaths
+    seq_length = seq_length
+    dim_size = num_stocks
+    # create a simple no trade region
+    lower = strategy[:,0,:].view(num_stocks,1,npaths)-torch.pow(1.5/utility_gamma*(strategy*strategy*(1-strategy)*(1-strategy))[:,0,:].view(num_stocks,1,npaths)*cost[:,0,:].view(num_stocks,1,npaths),1/3)
+    upper = strategy[:,0,:].view(num_stocks,1,npaths)+torch.pow(1.5/utility_gamma*(strategy*strategy*(1-strategy)*(1-strategy))[:,0,:].view(num_stocks,1,npaths)*cost[:,0,:].view(num_stocks,1,npaths),1/3)
+    stra_NTR_the = simpleNTR(strategy, returns, upper, lower)
+    # create a new model
+    model3 = NMA.WealthRNN_Ellipse(input_size, hidden_size, n_layers, batch_size, seq_length,dim_size).to(device)
+    # load saved data
+    model3.load_state_dict(model_state_dict)
+    # outputs of testing data
+    _, outputs = model3(strategy.to(device),strategy[:,0,0], returns, cost, None)
+    # condidence interval
+    CI = 1/T*np.log(np.power(confidence_interval(np.power(outputs.detach().cpu().numpy(),1-utility_gamma),confidence),1/(1-utility_gamma)))
+
+    return cal_esr(strategy,returns,cost,utility_gamma, T,scaler),cal_esr(stra_NTR_the,returns,cost,utility_gamma, T,scaler),cal_esr(_,returns,cost,utility_gamma, T,scaler),CI
 

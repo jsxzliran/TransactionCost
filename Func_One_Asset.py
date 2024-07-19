@@ -74,8 +74,6 @@ def make_portfolio(seed,mu,sigma,s0,npaths,seq_length,T,trading_cost,gamma):
     Merton_opt = mu/(sigma*sigma*gamma)
     # Define the distance for initial non trade region
     delta = np.power(np.power(Merton_opt*(1-Merton_opt)*trading_cost,2),1/3)
-    #init_a = torch.tensor(Merton_opt-delta,dtype = torch.float)
-    #init_b = torch.tensor(Merton_opt+delta,dtype = torch.float)
     stock = dg.OneStock(seed,mu,sigma,s0,npaths,seq_length-1,T)
     returns = torch.tensor(stock.Returns(),dtype=torch.float).to(device).transpose(0,1)
     # Create a default strategy as initial input, better use the optimal strategy without cost
@@ -86,10 +84,10 @@ def make_portfolio(seed,mu,sigma,s0,npaths,seq_length,T,trading_cost,gamma):
 
 # Make the model
 def make_model(input_size, hidden_size, n_layers, npaths, seq_length, delta, gamma, learning_rate):
-
     model = NOA.WealthRNN(input_size, hidden_size, n_layers, npaths, seq_length).to(device)
     model.update_bias(delta)
     model.to(device)
+    # Use utility as the loss function
     criterion = UL.PowerUtilityLoss(gamma)
     #model.rnn.fc2_param.bias.requires_grad = True
     optimizer = optim.Adam(filter(lambda p: p.requires_grad, model.parameters()), lr=learning_rate)
@@ -100,15 +98,13 @@ def make_model(input_size, hidden_size, n_layers, npaths, seq_length, delta, gam
 def train_model(strategy, target, returns, cost, scaler, model, criterion, optimizer,n_epochs,gamma,T):
     losses = np.zeros(n_epochs) 
     for epoch in range(n_epochs):
-        #inputs = strategy.view(seq_length,1,1).to(device)
         fina_strat, outputs = model(strategy.double(), target, returns, cost, None)
-
         loss = criterion(outputs,scaler)
-        #loss = criterion(outputs)/(1-gamma)+1/(1-gamma)
         optimizer.zero_grad()
         loss.backward()
         optimizer.step()
-        losses[epoch] += loss    
+        losses[epoch] += loss 
+    # Plot the model   
     POA.loss_esr(n_epochs, losses,gamma,T)
     for name, param in model.named_parameters():
         print (name, param.data)
@@ -146,10 +142,15 @@ def calculate_confidence_interval(data, confidence=0.95):
 
 # Deal with ESR:
 def ESR(mu,sigma,gamma,data, T,trading_cost, confidence=0.95):
+    # Merton strategy
     Merton_opt = mu/(sigma*sigma*gamma)
+    # ESR from the RNN simulation
     ESR_simulated = 1/T*np.log(np.power(np.mean(np.power(data,1-gamma)),1/(1-gamma)))
+    # Confidence interval
     CI = 1/T*np.log(np.power(calculate_confidence_interval(np.power(data,1-gamma),confidence),1/(1-gamma)))
+    # Theoretical ESR without cost
     ESR_opt = mu*mu/sigma/sigma/2/gamma
+    # Asymtotic ESR
     ESR_real = mu*mu/sigma/sigma/2/gamma-gamma*sigma*sigma/2*np.power(trading_cost,2/3)*np.power(3/2/gamma*Merton_opt*Merton_opt*(1-Merton_opt)*(1-Merton_opt),2/3)
     return ESR_simulated, CI, ESR_opt, ESR_real
     

@@ -113,7 +113,7 @@ def initial_rotate_matrix(cov,delta_tensor, num_stocks):
         #     matrix[1,1] = -matrix[1,1]
         return matrix
 
-
+# Create a square simple no trade region strategy without correlation
 def simpleNTR(input, returns, upper, lower):
     output = []
     steps = range(input.size(1))

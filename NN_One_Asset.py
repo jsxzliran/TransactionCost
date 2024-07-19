@@ -38,7 +38,6 @@ class NoTradeRegionRNN(nn.Module):
             h = self.fc2_param.weight*F.relu(ingate2)+pi_bar+self.hidden_param.bias
             return h
 
-
         # Loop to formulate the rnn
         output = []
         steps = range(input.size(0))
@@ -55,7 +54,6 @@ class NoTradeRegionRNN(nn.Module):
                 output.append(hidden)
 
         output = torch.cat(output, 0).view(input.size(0), self.batch_size, self.hidden_size)
-
         return output, hidden
     
 
@@ -99,7 +97,6 @@ class WealthRNN(nn.Module):
         # output_temp the overall wealth at time T for importance sampling
         output2 = torch.prod(FOA.cal_return(output.float().view(self.seq_length,self.batch_size),returns,cost).to(device)+1,0)
         return  output, output2
-        #return  output
 
 #    def __init__hidden(self):
 #       hidden = inputs[0]*torch.ones(self.n_layers, self.batch_size, self.hidden_size, dtype=torch.float64).to(device)
