@@ -1,5 +1,5 @@
 # TransactionCost
-This project aims at finding a way to mitigate particular trading strategy considering transaction cost. To see how it works, we suggest using anaconda/miniconda with some python IDE like Pycharm or Jupyter notebook or MS Vscode which is my choice.
+This project aims at finding a way to mitigate particular trading strategy considering transaction cost. To see how it works, we suggest using anaconda/miniconda with some python IDE like Pycharm or Jupyter notebook or MS Vscode. High performance graph card is required for training.
 
 ## Installation
 
