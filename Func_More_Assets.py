@@ -31,7 +31,7 @@ def make_portfolio(i,seed,mu,cov,s0,total_path,num_stocks,seq_length,T,trade_cos
     Merton_opt = np.matmul(np.linalg.inv(cov),mu)/utility_gamma
     Merton_opt_tensor =  torch.tensor(Merton_opt,dtype = torch.float).to(device)
     
-    
+    cov = return_matrix_modification(cov,num_stocks)
     stock = dg.ManyStocks(seed,num_stocks,mu.T,s0,cov,total_path,seq_length-1,T)
     returns = torch.tensor(stock.Returns(),dtype=torch.float).to(device)
     # Create a default strategy as initial input, better use the optimal strategy without cost
