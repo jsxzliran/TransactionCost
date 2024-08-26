@@ -21,7 +21,7 @@ This project aims at finding a way to mitigate particular trading strategy consi
   ```
 6. Don't forget to install the pytorch:
 ```
-conda install pytorch torchvision torchaudio cudatoolkit=11.1 -c pytorch -c conda-forge
+conda install pytorch torchvision torchaudio cudatoolkit=12.4 -c pytorch -c conda-forge
 ```
 Here you need to figure out your particular graph card and related drivers file to install
 
